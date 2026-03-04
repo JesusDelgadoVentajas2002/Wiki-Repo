@@ -15,8 +15,14 @@ def indexar_repositorio(repo_url: str, nombre_repo: str):
     # Clonar el repo en una carpeta temporal
     ruta_temp = f"./temp_{nombre_repo}"
     
+    import stat
+
+    def forzar_borrado(func, path, exc_info):
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+
     if os.path.exists(ruta_temp):
-        shutil.rmtree(ruta_temp)
+        shutil.rmtree(ruta_temp, onexc=forzar_borrado)
     
     print(f"Clonando {repo_url}...")
     git.Repo.clone_from(repo_url, ruta_temp)
@@ -45,7 +51,7 @@ def indexar_repositorio(repo_url: str, nombre_repo: str):
     )
     
     # Limpiar carpeta temporal
-    shutil.rmtree(ruta_temp)
+    shutil.rmtree(ruta_temp, onexc=forzar_borrado)
     print(f"Indexación completada. Vectores guardados en chroma_db/{nombre_repo}")
     
     return index

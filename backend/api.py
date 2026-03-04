@@ -20,7 +20,7 @@ app.add_middleware(
 
 # Configurar modelos
 Settings.embed_model = OllamaEmbedding(model_name="nomic-embed-text")
-Settings.llm = Ollama(model="qwen2.5-coder:7b", request_timeout=120.0)
+Settings.llm = Ollama(model="qwen2.5-coder:7b", request_timeout=300.0)
 
 # Modelos de datos
 class RepoRequest(BaseModel):
