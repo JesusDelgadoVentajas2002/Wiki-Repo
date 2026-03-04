@@ -20,3 +20,10 @@ tree-sitter
 tree-sitter-python
 tree-sitter-javascript
 tree-sitter-typescript
+
+# Request
+requests
+
+# Mermaid (requiere Node.js instalado, no es pip)
+# npm install -g @mermaid-js/mermaid-cli
+# pip install mermaid-py

@@ -85,6 +85,26 @@ async def chat(request: ChatRequest):
         }
     )
 
+
+########## DE LOS DIAGRAMAS #############
+from diagramas import generar_diagrama_con_contexto
+
+class DiagramaRequest(BaseModel):
+    nombre_repo: str
+    tipo: str = "flujo"  # "flujo" o "clases"
+
+@app.post("/api/diagrama")
+async def diagrama(request: DiagramaRequest):
+    try:
+        resultado = await asyncio.get_event_loop().run_in_executor(
+            None, generar_diagrama_con_contexto, request.nombre_repo, request.tipo
+        )
+        return resultado
+    except Exception as e:
+        return {"status": "error", "mensaje": str(e)}
+
+
+
 @app.get("/")
 async def root():
     return {"mensaje": "Wiki-Repo API funcionando"}
