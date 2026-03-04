@@ -6,7 +6,8 @@ from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.llms.ollama import Ollama
 import chromadb
-from backend.indexer import indexar_repositorio
+from indexer import indexar_repositorio
+
 
 app = FastAPI()
 

@@ -9,7 +9,7 @@ import chromadb
 
 # Configurar el modelo de embeddings
 Settings.embed_model = OllamaEmbedding(model_name="nomic-embed-text")
-Settings.llm = None  # El LLM lo usamos solo en el chat, no aquí
+# Settings.llm = None  # El LLM lo usamos solo en el chat, no aquí
 
 def indexar_repositorio(repo_url: str, nombre_repo: str):
     # Clonar el repo en una carpeta temporal
