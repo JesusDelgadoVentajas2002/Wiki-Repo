@@ -1,8 +1,22 @@
+# Servidor
 fastapi
 uvicorn
+
+# LlamaIndex - core y conectores
 llama-index
+llama-index-core
 llama-index-vector-stores-chroma
 llama-index-embeddings-ollama
 llama-index-llms-ollama
+
+# Base de datos vectorial
 chromadb
+
+# Git
 gitpython
+
+# Parsing de código
+tree-sitter
+tree-sitter-python
+tree-sitter-javascript
+tree-sitter-typescript
