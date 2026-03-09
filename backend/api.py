@@ -1,3 +1,4 @@
+# 1. IMPORTS
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -11,8 +12,12 @@ import json
 import asyncio
 from indexer import indexar_repositorio
 
-app = FastAPI()
 
+# 2. SET-UP INICIAL.
+# 2.1. CREA LA APP FASTAPI
+# 2.2. AÑADE CORS, PARA QUE EL BACKEND PUEDA HABLAR CON EL FRONTED SIN SER BLOQUEADO POR EL NAVEGADOR
+# 2.3. CONFIGURA GLOBALMENTE LOS DOS MODELOS QUE USARÁ LLAMAINDEX: EL DE EMBEDDING Y EL DE LLM
+app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,9 +25,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# VALIDA QUE LAS PETICIONES LLEGUEN CON LOS CAMPOS Y TIPOS CORRECTOS
 Settings.embed_model = OllamaEmbedding(model_name="nomic-embed-text")
 Settings.llm = Ollama(model="qwen2.5-coder:7b", request_timeout=300.0)
 
+
+# 3. MODELOS DE DATOS
+# FastAPI utiliza pydantic para validar los datos que llegan en las peticiones. Si llega una peticion sin url o con un tipo incorrecto,
+# FastAPI devolverá un error 422
 class RepoRequest(BaseModel):
     url: str
     nombre: str
@@ -31,6 +41,10 @@ class ChatRequest(BaseModel):
     nombre_repo: str
     pregunta: str
 
+
+# 4. ENDPOINT INDEXAR
+# "Un endpoint es una ruta que recibe una peticion y devuelve una respuesta."
+# Esto llama a indexar_repositorio() en un hilo separado para no bloquear la respuesta.
 @app.post("/api/indexar")
 async def indexar(request: RepoRequest):
     try:
@@ -41,6 +55,11 @@ async def indexar(request: RepoRequest):
     except Exception as e:
         return {"status": "error", "mensaje": str(e)}
 
+
+# 5. ENDPOINT CHAT
+# "Un endpoint es una ruta que recibe una peticion y devuelve una respuesta."
+# Este endpoint recibe una peticion con el nombre del repositorio y la pregunta del usuario.
+# Llama a chat_repositorio() en un hilo separado para no bloquear la respuesta.
 @app.post("/api/chat")
 async def chat(request: ChatRequest):
     async def generar_stream():
@@ -86,7 +105,10 @@ async def chat(request: ChatRequest):
     )
 
 
-########## DE LOS DIAGRAMAS #############
+# 6. ENDPOINT DIAGRAMA
+# "Un endpoint es una ruta que recibe una peticion y devuelve una respuesta."
+# Este endpoint recibe una peticion con el nombre del repositorio y el tipo de diagrama.
+# Llama a generar_diagrama_con_contexto() en un hilo separado para no bloquear la respuesta.
 from diagramas import generar_diagrama_con_contexto
 
 class DiagramaRequest(BaseModel):
@@ -104,7 +126,7 @@ async def diagrama(request: DiagramaRequest):
         return {"status": "error", "mensaje": str(e)}
 
 
-
+# 7. CHEQUEO DE QUE NO HA HABIDO ERRORES
 @app.get("/")
 async def root():
     return {"mensaje": "Wiki-Repo API funcionando"}

@@ -12,6 +12,9 @@ from llama_index.core import Settings
 Settings.embed_model = OllamaEmbedding(model_name="nomic-embed-text")
 
 # Mapeo de extensiones a lenguajes soportados por tree-sitter
+# Language_map es un diccionario que mapea extensiones de archivos a lenguajes soportados por tree-sitter
+# Extensiones_texto es una lista de extensiones de archivos que se van a indexar
+# Si una extension no esta en language_map, se utiliza SentenceSplitter, la cual divide el texto en frases y no utiliza tree-sitter
 LANGUAGE_MAP = {
     ".py": "python",
     ".js": "javascript",
@@ -21,12 +24,17 @@ LANGUAGE_MAP = {
 
 EXTENSIONES_TEXTO = [".py", ".js", ".ts", ".tsx", ".md", ".txt", ".json"]
 
+
 def forzar_borrado(func, path, exc_info):
     os.chmod(path, stat.S_IWRITE)
     func(path)
 
 def obtener_splitter(extension: str):
-    """Devuelve el splitter adecuado según la extensión del archivo."""
+    """
+    Devuelve el splitter adecuado según la extensión del archivo.
+    - Para archivos de código (py, js, ts, tsx): utiliza CodeSplitter con tree-sitter
+    - Para archivos de texto (md, txt, json): utiliza SentenceSplitter
+    """
     lenguaje = LANGUAGE_MAP.get(extension)
     if lenguaje:
         try:
@@ -42,7 +50,22 @@ def obtener_splitter(extension: str):
     from llama_index.core.node_parser import SentenceSplitter
     return SentenceSplitter(chunk_size=512, chunk_overlap=50)
 
+
+
+# INDEXAR EL REPOSITORIO
 def indexar_repositorio(repo_url: str, nombre_repo: str):
+    """
+    1. Borra ./temp_{nombre_repo} si existe
+    2. Clona el repositorio en ./temp_{nombre_repo}
+    3. Para cada extension en EXTENSIONES_TEXTO:
+        3.1. Lee los archivos
+        3.2. Aplica el splitter correcto
+        3.3. Enriquece cada fragmento con metadatos de contexto
+        3.4. Agrega los fragmentos a todos_los_nodos
+    4. Se conecta a ChromaDB, borra la coleccion si existe y crea una nueva
+    5. Se generan y persisten los vectores
+    6. Se borra ./temp_{nombre_repo}
+    """
     ruta_temp = f"./temp_{nombre_repo}"
 
     # Limpiar si ya existe de una ejecución anterior
