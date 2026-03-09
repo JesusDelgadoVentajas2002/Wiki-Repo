@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from llama_index.core import VectorStoreIndex, StorageContext, Settings
+from llama_index.core import VectorStoreIndex, StorageContext, Settings, PromptTemplate
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.llms.ollama import Ollama
@@ -77,10 +77,30 @@ async def chat(request: ChatRequest):
                 storage_context=storage_context
             )
 
+            # Prompt personalizado: el LLM redirecciona preguntas no relacionadas con el repo
+            prompt_qa = PromptTemplate(
+                "Eres un asistente experto en analizar repositorios de código.\n"
+                "Solo tienes información sobre el repositorio que se ha indexado.\n"
+                "REGLAS:\n"
+                "1. Si la pregunta está relacionada con el código, arquitectura, funciones, "
+                "archivos, dependencias o cualquier aspecto técnico del repositorio, responde "
+                "usando únicamente el contexto proporcionado. No inventes nada.\n"
+                "2. Si la pregunta NO tiene nada que ver con el repositorio (preguntas generales, "
+                "triviales, de cultura general, etc.), responde con algo como: "
+                "'Solo puedo ayudarte con preguntas sobre este repositorio. "
+                "¿Tienes alguna duda sobre el código?'\n"
+                "3. No seas excesivamente restrictivo: preguntas sobre buenas prácticas de "
+                "programación o conceptos técnicos generales sí puedes responderlas.\n\n"
+                "Contexto del repositorio:\n{context_str}\n\n"
+                "Pregunta: {query_str}\n\n"
+                "Respuesta:"
+            )
+
             # Motor de consulta con streaming activado
             motor = index.as_query_engine(
                 similarity_top_k=4,
-                streaming=True
+                streaming=True,
+                text_qa_template=prompt_qa
             )
 
             # Obtener respuesta en streaming
