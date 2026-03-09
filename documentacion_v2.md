@@ -35,6 +35,9 @@ uvicorn api:app --port 8000
 cd wiki-repo\frontend
 npm.cmd install   # solo la primera vez
 npm.cmd run dev
+# Si no va, añadir el PATH de Node.js. Esto solo irá en una terminal nueva
+Add-Content $PROFILE "`n`$env:Path += ';C:\Users\EM2025008077\node\node-v24.14.0-win-x64'"
+
 # Abre http://localhost:3000
 ```
 
