@@ -2,8 +2,9 @@
 import { useState } from "react";
 import Chat from "./components/Chat";
 import Diagrama from "./components/Diagrama";
+import Cambios from "./components/Cambios";
 
-type Vista = "inicio" | "chat" | "diagrama";
+type Vista = "inicio" | "chat" | "diagrama" | "cambios";
 
 export default function Home() {
   const [repoUrl, setRepoUrl] = useState("");
@@ -73,6 +74,19 @@ export default function Home() {
                 Genera automáticamente diagramas de arquitectura del repositorio. Elige entre diagrama de flujo de datos o diagrama de clases.
               </p>
             </button>
+
+            {/* Cambios */}
+            <button
+              onClick={() => setVista("cambios")}
+              className="bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 rounded-2xl p-6 text-left transition-all group"
+            >
+              <div className="flex items-center gap-4 mb-2">
+                <h2 className="text-xl font-semibold text-slate-100 group-hover:text-blue-400 transition-colors">Cambios recientes</h2>
+              </div>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Analiza los últimos commits del repositorio. El LLM explica qué se cambió, por qué y si hay algo destacable como nuevas funcionalidades, bug fixes o refactors.
+              </p>
+            </button>
           </div>
 
           <button
@@ -120,6 +134,25 @@ export default function Home() {
         </header>
         <div className="flex-1 p-8 overflow-auto">
           <Diagrama nombreRepo={nombreRepo} />
+        </div>
+      </main>
+    );
+  }
+
+  // ── PANTALLA: cambios ─────────────────────────────────────────────────────
+  if (indexado && vista === "cambios") {
+    return (
+      <main className="min-h-screen bg-slate-900 text-slate-100 flex flex-col">
+        <header className="flex items-center gap-4 px-6 py-4 border-b border-slate-700 bg-slate-800">
+          <button onClick={volver} className="text-slate-400 hover:text-slate-100 transition-colors text-sm">
+            ← Menú principal
+          </button>
+          <span className="text-slate-600">|</span>
+          <span className="text-slate-300 font-semibold">Cambios recientes</span>
+          <span className="ml-auto text-slate-500 text-sm">{nombreRepo}</span>
+        </header>
+        <div className="flex-1 p-8 overflow-auto">
+          <Cambios repoUrl={repoUrl} />
         </div>
       </main>
     );

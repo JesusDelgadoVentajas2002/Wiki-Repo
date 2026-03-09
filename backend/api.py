@@ -12,6 +12,7 @@ import chromadb
 import json
 import asyncio
 from indexer import indexar_repositorio
+from git_analyzer import analizar_cambios_recientes
 
 
 # 2. SET-UP INICIAL.
@@ -132,9 +133,6 @@ async def diagrama(request: DiagramaRequest):
 
 
 
-
-from git_analyzer import analizar_cambios_recientes
-
 class CambiosRequest(BaseModel):
     url: str
     num_commits: int = 5
@@ -147,7 +145,8 @@ async def cambios(request: CambiosRequest):
         )
         return resultado
     except Exception as e:
-        return {"status": "error", "mensaje": str(e)}
+        detalle = repr(e) or type(e).__name__
+        return {"status": "error", "mensaje": f"Error interno del servidor: {detalle}"}
 
 
 
