@@ -7,6 +7,7 @@ from llama_index.core import VectorStoreIndex, StorageContext, Settings
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.llms.ollama import Ollama
+from diagramas import generar_diagrama_con_contexto
 import chromadb
 import json
 import asyncio
@@ -109,7 +110,6 @@ async def chat(request: ChatRequest):
 # "Un endpoint es una ruta que recibe una peticion y devuelve una respuesta."
 # Este endpoint recibe una peticion con el nombre del repositorio y el tipo de diagrama.
 # Llama a generar_diagrama_con_contexto() en un hilo separado para no bloquear la respuesta.
-from diagramas import generar_diagrama_con_contexto
 
 class DiagramaRequest(BaseModel):
     nombre_repo: str
@@ -124,6 +124,31 @@ async def diagrama(request: DiagramaRequest):
         return resultado
     except Exception as e:
         return {"status": "error", "mensaje": str(e)}
+
+
+
+
+
+
+
+
+
+from git_analyzer import analizar_cambios_recientes
+
+class CambiosRequest(BaseModel):
+    url: str
+    num_commits: int = 5
+
+@app.post("/api/cambios")
+async def cambios(request: CambiosRequest):
+    try:
+        resultado = await asyncio.get_event_loop().run_in_executor(
+            None, analizar_cambios_recientes, request.url, request.num_commits
+        )
+        return resultado
+    except Exception as e:
+        return {"status": "error", "mensaje": str(e)}
+
 
 
 # 7. CHEQUEO DE QUE NO HA HABIDO ERRORES
