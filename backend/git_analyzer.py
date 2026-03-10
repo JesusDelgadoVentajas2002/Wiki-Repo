@@ -70,7 +70,7 @@ def analizar_cambios_recientes(repo_url: str, num_commits: int = 5) -> dict:
             }
 
         # ── Construir texto con diffs ────────────────────────────────────────
-        MAX_DIFF_CHARS = 3000
+        MAX_DIFF_CHARS = 2000
         texto_commits = []
         info_commits_frontend = []
 
@@ -88,9 +88,18 @@ def analizar_cambios_recientes(repo_url: str, num_commits: int = 5) -> dict:
 
             # En clones superficiales el commit padre puede no existir localmente
             # → intentamos diff, y si falla (bad object) usamos git show como fallback
+            # Excluimos archivos de ruido (lock files, binarios) para reducir el tamaño del diff
+            EXCLUDE_PATTERNS = [
+                "package-lock.json", "yarn.lock", "pnpm-lock.yaml",
+                "*.lock", "*.min.js", "*.min.css", "*.map",
+            ]
+            pathspec_excludes = [f":!{p}" for p in EXCLUDE_PATTERNS]
             try:
                 if commit.parents:
-                    diff = repo.git.diff(commit.parents[0].hexsha, commit.hexsha)
+                    diff = repo.git.diff(
+                        commit.parents[0].hexsha, commit.hexsha,
+                        "--", ".", *pathspec_excludes
+                    )
                 else:
                     diff = repo.git.show(commit.hexsha, "--stat")
             except git.exc.GitCommandError:
@@ -109,7 +118,7 @@ def analizar_cambios_recientes(repo_url: str, num_commits: int = 5) -> dict:
         contexto_commits = "\n".join(texto_commits)
 
         # ── Pedir resumen al LLM ─────────────────────────────────────────────
-        llm = Ollama(model="qwen2.5-coder:7b", request_timeout=300.0)
+        llm = Ollama(model="qwen2.5-coder:7b", request_timeout=600.0)
 
         prompt = f"""Analiza estos {len(commits)} commits recientes de un repositorio de código y genera un resumen claro en español.
 
