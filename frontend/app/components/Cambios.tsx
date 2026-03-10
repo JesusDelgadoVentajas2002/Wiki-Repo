@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface CommitInfo {
     hash: string;
@@ -145,9 +147,26 @@ export default function Cambios({ repoUrl }: { repoUrl: string }) {
                 <h3 className="text-blue-400 font-semibold mb-4 text-sm uppercase tracking-wide">
                     Análisis del LLM
                 </h3>
-                <p className="text-slate-200 text-sm whitespace-pre-wrap leading-relaxed">
-                    {resultado!.resumen}
-                </p>
+                <div className="text-slate-200 text-sm leading-relaxed">
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                            h1: ({ children }) => <h1 className="text-xl font-bold text-slate-100 mt-4 mb-2">{children}</h1>,
+                            h2: ({ children }) => <h2 className="text-lg font-bold text-slate-100 mt-4 mb-2">{children}</h2>,
+                            h3: ({ children }) => <h3 className="text-base font-semibold text-blue-300 mt-3 mb-1">{children}</h3>,
+                            p: ({ children }) => <p className="mb-3">{children}</p>,
+                            ul: ({ children }) => <ul className="list-disc list-inside space-y-1 mb-3 pl-2">{children}</ul>,
+                            ol: ({ children }) => <ol className="list-decimal list-inside space-y-1 mb-3 pl-2">{children}</ol>,
+                            li: ({ children }) => <li className="text-slate-300">{children}</li>,
+                            strong: ({ children }) => <strong className="text-slate-100 font-semibold">{children}</strong>,
+                            em: ({ children }) => <em className="text-slate-300 italic">{children}</em>,
+                            code: ({ children }) => <code className="bg-slate-700 text-blue-300 px-1.5 py-0.5 rounded text-xs font-mono">{children}</code>,
+                            hr: () => <hr className="border-slate-600 my-4" />,
+                        }}
+                    >
+                        {resultado!.resumen}
+                    </ReactMarkdown>
+                </div>
             </div>
         </div>
     );

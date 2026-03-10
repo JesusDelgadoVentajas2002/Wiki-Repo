@@ -1,13 +1,9 @@
-# Servidor
-fastapi
-uvicorn
+# ── Backend (Python / pip install -r requeriments.txt) ───────────────────────
 
-# LlamaIndex - core y conectores
-llama-index
-llama-index-core
-llama-index-vector-stores-chroma
-llama-index-embeddings-ollama
-llama-index-llms-ollama
+# API
+fastapi
+pydantic
+uvicorn[standard]
 
 # Base de datos vectorial
 chromadb
@@ -15,15 +11,28 @@ chromadb
 # Git
 gitpython
 
+# LlamaIndex - core y conectores
+llama-index
+llama-index-core
+llama-index-embeddings-ollama
+llama-index-llms-ollama
+llama-index-vector-stores-chroma
+
 # Parsing de código
 tree-sitter
-tree-sitter-python
 tree-sitter-javascript
+tree-sitter-python
 tree-sitter-typescript
 
-# Request
+# HTTP
 requests
 
-# Mermaid (requiere Node.js instalado, no es pip)
-# npm install -g @mermaid-js/mermaid-cli
-# pip install mermaid-py
+# ── Frontend (Node.js / npm install) ─────────────────────────────────────────
+
+# npm install mermaid react-markdown remark-gfm
+# (el resto lo gestiona Next.js automáticamente)
+
+# ── Herramientas externas ─────────────────────────────────────────────────────
+
+# Mermaid CLI (requiere Node.js):  npm install -g @mermaid-js/mermaid-cli
+# Ollama (LLM local):              https://ollama.com
